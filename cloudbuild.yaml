@@ -1,7 +1,10 @@
 steps:
-- name: 'gcr.io/cloud-builders/docker'
-  script: |
-    docker build -t us-west2-docker.pkg.dev/$PROJECT_ID/quickstart-docker-repo/quickstart-image:tag1 .
-  automapSubstitutions: true
-images:
-- 'us-west2-docker.pkg.dev/$PROJECT_ID/quickstart-docker-repo/quickstart-image:tag1'
+  # Install dependencies
+  - name: python
+    entrypoint: pip
+    args: ["install", "-r", "requirements.txt", "--user"]
+
+  # Run unit tests
+  - name: python3
+    entrypoint: python3
+    args: ["hello_world.py"] 

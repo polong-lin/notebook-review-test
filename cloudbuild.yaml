@@ -7,20 +7,20 @@ steps:
   # Run py script: hello world
   - name: python
     entrypoint: python
-    args: ["hello_world.py", "12", "${_SECRET_NUMBER}"] 
+    args: ["hello_world.py", "12", "${_SECRET_NUMBER}"]
 
   # Run py script: hello Gemini
   - name: python
     entrypoint: python
-    args: ["hello_gemini.py"] 
+    args: ["hello_gemini.py"]
 
 
   # Run py script: list files
   - name: python
     entrypoint: python
-    args: ["list_files.py"] 
+    args: ["list_files.py"]
     
   # Run py script: raise error manually
   - name: python
     entrypoint: python
-    args: ["raise_error.py"] 
+    args: ["raise_error.py"]

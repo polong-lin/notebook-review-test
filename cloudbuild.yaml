@@ -1,7 +1,15 @@
 steps:
-- name: 'gcr.io/cloud-builders/docker'
-  script: |
-    docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/quickstart-docker-repo/quickstart-image:tag1 .
-  automapSubstitutions: true
-images:
-- 'us-central1-docker.pkg.dev/$PROJECT_ID/quickstart-docker-repo/quickstart-image:tag1'
+  # Install dependencies
+  - name: python
+    entrypoint: pip
+    args: ["install", "-r", "requirements.txt", "--user"]
+
+  - name: python
+    entrypoint: python
+    args: ["summarize_pr.py"]
+    env: 
+      - 'GITHUB_TOKEN=$_GITHUB_TOKEN'
+      - 'REPO_FULL_NAME=$REPO_FULL_NAME'
+      - 'REPO_NAME=$REPO_NAME'
+      - 'PR_NUMBER=$_PR_NUMBER'
+      - 'MODEL_ID=$_MODEL_ID'

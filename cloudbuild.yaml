@@ -20,7 +20,7 @@ steps:
     entrypoint: python
     args: ["list_files.py"]
     
-  - name: SummarizePR
+  - name: python
     entrypoint: python
     args: ["summarize_pr.py"]
     env: 

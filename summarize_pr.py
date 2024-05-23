@@ -70,7 +70,7 @@ if __name__ == "__main__":
     vertexai.init()
 
     # Get GitHub token (store securely in Cloud Build secrets)
-    GITHUB_TOKEN = os.environ["_GITHUB_TOKEN"]
+    GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
 
     # Get PR information from environment variables (set by Cloud Build)
     OWNER = os.environ["REPO_FULL_NAME"].split("/")[0]

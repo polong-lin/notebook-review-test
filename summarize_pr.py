@@ -50,10 +50,11 @@ def summarize_pr(
     )
 
     prompt = [
-        "The following is the content of a GitHub Pull Request for a repository focused on Generative AI with Google Cloud. This content includes the Pull Request title, Pull Request description, a list of all of the files changed with the file name, the code diff and the raw file content. Your task is to output a summary of the Pull Request in Markdown format.",
+        "The following is the content of a GitHub Pull Request for a repository focused on Generative AI with Google Cloud. This content includes the Pull Request title, Pull Request description, a list of all of the files changed with the file name, the code diff and the raw file content. Your task is to output a summary of the Pull Request in Markdown format. Also, suggest a new title for the pull request, following the conventionalcommits.org standard.",
         "Content:",
         pull_request_content,
         "Summary:",
+        "New Title:",
     ]
 
     print("---Prompt---\n", prompt)

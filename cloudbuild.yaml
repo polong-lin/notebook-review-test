@@ -9,6 +9,12 @@ steps:
     entrypoint: python
     args: ["hello_world.py", "12", "${_SECRET_NUMBER}"] 
 
+  # Run py script: hello Gemini
+  - name: python
+    entrypoint: python
+    args: ["hello_gemini.py"] 
+
+
   # Run py script: list files
   - name: python
     entrypoint: python

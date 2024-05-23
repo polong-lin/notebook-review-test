@@ -7,7 +7,7 @@ steps:
   # Run py script: hello world
   - name: python
     entrypoint: python
-    args: ["hello_world.py", "--square", "12"] 
+    args: ["hello_world.py", "12", "${_SECRET_NUMBER}"] 
 
   # Run py script: list files
   - name: python

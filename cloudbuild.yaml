@@ -7,7 +7,7 @@ steps:
   # Run py script: hello world
   - name: python
     entrypoint: python
-    args: ["hello_world.py"] 
+    args: ["hello_world.py", "--square", "12"] 
 
   # Run py script: list files
   - name: python

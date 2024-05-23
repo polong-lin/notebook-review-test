@@ -73,7 +73,7 @@ if __name__ == "__main__":
     GITHUB_TOKEN = os.environ["_GITHUB_TOKEN"]
 
     # Get PR information from environment variables (set by Cloud Build)
-    OWNER = os.environ["REPO_OWNER"]
+    OWNER = os.environ["REPO_FULL_NAME"].split("/")[0]
     REPO = os.environ["REPO_NAME"]
     PR_NUMBER = os.environ["PULL_REQUEST_NUMBER"]
 

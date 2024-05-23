@@ -79,5 +79,4 @@ if __name__ == "__main__":
 
     MODEL_ID = os.environ.get("MODEL_ID", "gemini-1.5-flash-preview-0514")
 
-    print(GITHUB_TOKEN)
     summarize_pr(GITHUB_TOKEN, OWNER, REPO, PR_NUMBER, MODEL_ID)

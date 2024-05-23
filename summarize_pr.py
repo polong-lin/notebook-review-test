@@ -63,7 +63,7 @@ def summarize_pr(
 
     # Post the summary as a comment
     api.issues.create_comment(
-        pr_number, f"## Pull Request Summary from Gemini\n {response.text}"
+        pr_number, f"## Pull Request Summary from Gemini ✨\n {response.text}"
     )
 
 

@@ -75,7 +75,9 @@ if __name__ == "__main__":
     # Get PR information from environment variables (set by Cloud Build)
     OWNER = os.environ["REPO_FULL_NAME"].split("/")[0]
     REPO = os.environ["REPO_NAME"]
-    PR_NUMBER = os.environ["PULL_REQUEST_NUMBER"]
+    PR_NUMBER = os.environ["PR_NUMBER"]
+
+    print(os.environ)
 
     MODEL_ID = os.environ.get("MODEL_ID", "gemini-1.5-flash-preview-0514")
 

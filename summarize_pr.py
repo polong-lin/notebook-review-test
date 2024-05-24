@@ -86,13 +86,7 @@ def analyze_pr(api: GhApi, pr_number: str, model_id: str) -> Tuple:
         post_prompt="Analysis:",
     )
 
-    comment_content = f"""
-    ## Pull Request Summary from Gemini ✨
-    {summarize_output}
-
-    ## Analysis from Gemini ✨
-    {analysis_output}
-    """
+    comment_content = f"""# Pull Request Summary from Gemini ✨\n{summarize_output}\n\n# Code Analysis from Gemini ✨\n{analysis_output}"""
 
     # Post the summary as a comment
     api.issues.create_comment(pr_number, comment_content)

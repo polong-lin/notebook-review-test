@@ -4,9 +4,10 @@ from ghapi.all import GhApi
 import gzip
 import base64
 
-from typing import Tuple
+from typing import Tuple, Optional
 import vertexai
 from vertexai.generative_models import GenerationConfig, GenerativeModel
+import json
 
 
 def _get_pr_content(api: GhApi, pr_number: str) -> str:
@@ -44,7 +45,11 @@ def _get_pr_content(api: GhApi, pr_number: str) -> str:
 
 
 def _process_code_base(
-    pull_request_content: str, model_id: str, task_prompt: str, post_prompt: str = ""
+    pull_request_content: str,
+    model_id: str,
+    task_prompt: str,
+    post_prompt: str = "",
+    response_mime_type: Optional[str] = None,
 ):
     model = GenerativeModel(
         model_id,
@@ -53,6 +58,7 @@ def _process_code_base(
         ],
         generation_config=GenerationConfig(
             max_output_tokens=8192,
+            response_mime_type=response_mime_type,
         ),
     )
     prompt = [
@@ -94,7 +100,51 @@ def analyze_pr(api: GhApi, pr_number: str, model_id: str) -> Tuple:
     # Post the summary as a comment
     api.issues.create_comment(pr_number, comment_content)
 
+    pr = api.pulls.get(pr_number)
+    pr_diff = requests.get(pr["diff_url"]).text
+
+    pr_review_output = review_pr(model_id, pr_diff)
+    pr_review_dict = json.loads(pr_review_output)
+
+    api.pulls.create_review(
+        pr_number,
+        latest_commit,
+        pr_review_dict["body"],
+        "COMMENT",
+        pr_review_dict["comments"],
+    )
+
     return summarize_output, analysis_output
+
+
+def review_pr(model_id: str, pr_diff: str) -> str:
+    model = GenerativeModel(
+        model_id,
+        system_instruction=[
+            "You are an expert software engineer.",
+        ],
+    )
+
+    generation_config = GenerationConfig(
+        response_mime_type="application/json",
+        max_output_tokens=8192,
+    )
+
+    review_json_format = "{'body': 'Summary of the review', 'comments': ['path': 'The relative path to the file that necessitates a review comment.', 'body': 'The content of the review comment.', 'line': '(int) The line of the diff that the comment applies to.', 'side': 'RIGHT']}"
+
+    prompt = [
+        "The following is a git diff of a GitHub Pull Request.",
+        "Your task is to complete a thorough code review of the GitHub Pull Request. Analyze each code file line by line, then list any bugs you find and improvements that can be made to the code quality for readability and maintainability. Provide output in this JSON structure.",
+        review_json_format,
+        "---Git Diff---",
+        pr_diff,
+    ]
+
+    print("---Prompt---\n", prompt)
+    response = model.generate_content(prompt, generation_config=generation_config)
+    print("---Gemini Response---\n", response)
+
+    return response.text
 
 
 def convert_to_sarif(model_id: str, analysis_content: str) -> str:

@@ -86,7 +86,10 @@ def analyze_pr(api: GhApi, pr_number: str, model_id: str) -> Tuple:
         post_prompt="Analysis:",
     )
 
-    comment_content = f"""# Pull Request Summary from Gemini ✨\n{summarize_output}\n\n# Code Analysis from Gemini ✨\n{analysis_output}"""
+    latest_commit = api.pulls.list_commits(pr_number)[-1]["sha"]
+
+    # Create a comment on the PR
+    comment_content = f"""# Pull Request Summary from Gemini ✨\n{summarize_output}\n\n# Code Analysis from Gemini ✨\n{analysis_output}\n Generated at Commit: `{latest_commit}`"""
 
     # Post the summary as a comment
     api.issues.create_comment(pr_number, comment_content)

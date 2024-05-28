@@ -24,14 +24,21 @@ def _get_pr_content(api: GhApi, pr_number: str) -> str:
     # Fetch and print code diff
     pull_request_content += "\n--- Files Changed ---\n"
     for file in files:
+        if ".gitignore" in file.filename or ".github" in file.filename:
+            continue
+
         pull_request_content += f"File name: {file.filename}\n\n"
 
+        if "package-lock.json" in file.filename or "yarn.lock" in file.filename:
+            pull_request_content += "Lock File - Skipping\n\n"
+            continue
+
         patch = getattr(file, "patch", None)
-        if patch:
+        if patch and file.status != "added":
             if patch.startswith("Binary files"):
-                pull_request_content += "Binary file - Skipping Code Diff\n\n"
+                pull_request_content += "Binary file - Skipping\n\n"
                 continue
-            pull_request_content += f"Code Diff:\n{patch}\n\n"
+            pull_request_content += f"Git Diff:\n{patch}\n\n"
 
         raw_url = getattr(file, "raw_url", None)
         if raw_url:
@@ -62,7 +69,7 @@ def _process_code_base(
         ),
     )
     prompt = [
-        "The following is the content of a GitHub Pull Request for a repository focused on Generative AI with Google Cloud. This content includes the Pull Request title, Pull Request description, a list of all of the files changed with the file name, the code diff and the raw file content.",
+        "The following is the content of a GitHub Pull Request for a repository focused on Generative AI with Google Cloud. This content includes the Pull Request title, Pull Request description, a list of all of the files changed with the file name and the raw file content.",
         task_prompt,
         "Pull Request Content:",
         pull_request_content,
@@ -88,14 +95,23 @@ def analyze_pr(api: GhApi, pr_number: str, model_id: str) -> Tuple:
     analysis_output = _process_code_base(
         pull_request_content,
         model_id,
-        task_prompt="Your task is to analyze each code file line by line, then output any bugs you find and improvements that can be made to the code quality for readability and maintainability.",
+        task_prompt="Your task is to analyze each code file line by line, then output any bugs you find and suggest improvements that can be made to the code. Be as verbose and specific as possible. Provide specific code examples for changes to be made.",
         post_prompt="Analysis:",
     )
 
     latest_commit = api.pulls.list_commits(pr_number)[-1]["sha"]
 
     # Create a comment on the PR
-    comment_content = f"""# Pull Request Summary from Gemini ✨\n{summarize_output}\n\n# Code Analysis from Gemini ✨\n{analysis_output}\n Generated at Commit: `{latest_commit}`"""
+    comment_content = ""
+    if summarize_output:
+        comment_content += (
+            f"# Pull Request Summary from Gemini ✨\n{summarize_output}\n\n"
+        )
+    if analysis_output:
+        comment_content += f"# Code Analysis from Gemini ✨\n{analysis_output}\n"
+
+    if any([summarize_output, analysis_output]):
+        comment_content += f"""Generated at Commit: `{latest_commit}`"""
 
     # Post the summary as a comment
     api.issues.create_comment(pr_number, comment_content)
@@ -209,7 +225,7 @@ if __name__ == "__main__":
     REPO = os.environ["REPO_NAME"]
     PR_NUMBER = os.environ["PR_NUMBER"]
 
-    MODEL_ID = os.environ.get("MODEL_ID", "gemini-1.5-flash-preview-0514")
+    MODEL_ID = os.environ.get("MODEL_ID", "gemini-1.5-flash-001")
 
     USE_SARIF = False
     # Initialize GitHub API client

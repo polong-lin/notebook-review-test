@@ -16,7 +16,7 @@ def main():
     repo = g.get_repo(repo)
 
     # Construct the comment content
-    pr = repo.get_pull(pr_number)
+    pr = repo.get_pull(int(pr_number))
     comment_body = f"""
 **Pull Request Details:**
 
